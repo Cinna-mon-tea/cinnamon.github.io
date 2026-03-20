@@ -1,1 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cinnamon</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --purple: rgb(100, 40, 150);
+      --purple-light: rgb(140, 80, 200);
+      --purple-dark: rgb(60, 20, 100);
+      --purple-pale: rgb(200, 160, 240);
+      --bg: #0d0010;
+      --text: #f0e6ff;
+      --muted: rgba(200, 160, 240, 0.5);
+    }
 
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-weight: 300;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* Custom cursor */
+    .cursor {
+      width: 12px; height: 12px;
+      background: var(--purple-light);
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      transition: transform 0.15s ease, background 0.2s;
+      transform: translate(-50%, -50%);
+    }
+    .cursor-ring {
+      width: 36px; height: 36px;
+      border: 1px solid var(--purple-light);
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: all 0.25s ease;
+      opacity: 0.5;
+    }
+
+    /* Background noise + gradient */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 20%, rgba(100,40,150,0.35) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 80%, rgba(60,20,100,0.4) 0%, transparent 55%),
+        radial-gradient(ellipse at 60% 10%, rgba(140,80,200,0.15) 0%, transparent 40%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Floating orbs */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.18;
+      pointer-events: none;
+      z-index: 0;
+      animation: drift linear infinite;
+    }
+    .orb1 { width: 400px; height: 400px; background: var(--purple); top: -100px; left: -100px; animation-duration: 30s; }
+    .orb2 { width: 300px; height: 300px; background: var(--purple-light); bottom: -80px; right: -80px; animation-duration: 22s; animation-direction: reverse; }
+    .orb3 { width: 200px; height: 200px; background: var(--purple-dark); top: 40%; left: 60%; animation-duration: 18s; }
+
+    @keyframes drift {
+      0%, 100% { transform: translate(0,0) scale(1); }
+      33% { transform: translate(30px, -20px) scale(1.05); }
+      66% { transform: translate(-20px, 30px) scale(0.95); }
+    }
+
+    /* Layout */
+    main {
+      position: relative;
+      z-index: 1;
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    /* Hero */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 6rem 0 4rem;
+    }
+
+    .hello {
+      font-size: 0.75rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--purple-pale);
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.2s forwards;
+    }
+
+    h1 {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(4rem, 12vw, 9rem);
+      font-weight: 600;
+      line-height: 0.9;
+      margin-top: 0.5rem;
+      background: linear-gradient(135deg, #f0e6ff 30%, var(--purple-pale) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      opacity: 0;
+      animation: fadeUp 0.9s ease 0.4s forwards;
+    }
+
+    .tagline {
+      margin-top: 2rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      max-width: 420px;
+      line-height: 1.8;
+      opacity: 0;
+      animation: fadeUp 0.9s ease 0.7s forwards;
+    }
+
+    .tagline em {
+      color: var(--purple-pale);
+      font-style: normal;
+    }
+
+    .scroll-hint {
+      margin-top: 4rem;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      opacity: 0;
+      animation: fadeUp 0.9s ease 1.1s forwards;
+    }
+    .scroll-hint::after {
+      content: '';
+      display: block;
+      width: 40px;
+      height: 1px;
+      background: var(--muted);
+    }
+
+    /* Sections */
+    section {
+      padding: 5rem 0;
+      border-top: 1px solid rgba(200,160,240,0.1);
+    }
+
+    .section-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--purple-light);
+      margin-bottom: 2.5rem;
+    }
+
+    /* Hobbies */
+    .hobbies-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .hobby-card {
+      background: rgba(100,40,150,0.1);
+      border: 1px solid rgba(200,160,240,0.12);
+      border-radius: 4px;
+      padding: 2rem 1.5rem;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .hobby-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(140,80,200,0.08), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .hobby-card:hover { border-color: rgba(200,160,240,0.35); transform: translateY(-3px); }
+    .hobby-card:hover::before { opacity: 1; }
+
+    .hobby-icon { font-size: 2rem; margin-bottom: 1rem; display: block; }
+    .hobby-name {
+      font-family: 'Fraunces', serif;
+      font-size: 1.3rem;
+      font-weight: 300;
+      font-style: italic;
+      color: var(--purple-pale);
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+    .hobby-desc {
+      font-size: 0.72rem;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    /* Bug section — special */
+    .bug-section {
+      background: rgba(100,40,150,0.07);
+      border: 1px solid rgba(200,160,240,0.15);
+      border-radius: 4px;
+      padding: 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .bug-section::after {
+      content: '🐛';
+      position: absolute;
+      right: 2rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 5rem;
+      opacity: 0.08;
+      pointer-events: none;
+    }
+    .bug-section h2 {
+      font-family: 'Fraunces', serif;
+      font-size: 1.8rem;
+      font-weight: 300;
+      font-style: italic;
+      color: var(--purple-pale);
+      margin-bottom: 1rem;
+    }
+    .bug-section p {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 2;
+      max-width: 560px;
+    }
+    .bug-section p em {
+      color: var(--purple-pale);
+      font-style: normal;
+    }
+
+    /* Faves */
+    .faves-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+    @media (max-width: 540px) { .faves-grid { grid-template-columns: 1fr; } }
+
+    .fave-block h3 {
+      font-family: 'Fraunces', serif;
+      font-size: 1rem;
+      font-style: italic;
+      font-weight: 300;
+      color: var(--purple-pale);
+      margin-bottom: 1rem;
+    }
+
+    .fave-item {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid rgba(200,160,240,0.07);
+      font-size: 0.78rem;
+      color: var(--muted);
+      transition: color 0.2s;
+    }
+    .fave-item:hover { color: var(--purple-pale); }
+    .fave-item .dot {
+      width: 5px; height: 5px;
+      background: var(--purple-light);
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* Footer */
+    footer {
+      padding: 3rem 0 4rem;
+      border-top: 1px solid rgba(200,160,240,0.1);
+      font-size: 0.7rem;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+
+  <main>
+
+    <!-- Hero -->
+    <section class="hero">
+      <span class="hello">Welcome to my corner of the internet!</span>
+      <h1>cinnamon</h1>
+      <p class="tagline">
+        I'm into <em>maths</em>, <em>origami</em>, and <em>piano</em>.<br/>
+      </p>
+      <span class="scroll-hint">I don't know how you found this page but feel free to look around 🙃</span>
+    </section>
+
+    <!-- Hobbies -->
+    <section class="reveal">
+      <p class="section-label">things i love</p>
+      <div class="hobbies-grid">
+        <div class="hobby-card">
+          <span class="hobby-icon">∑</span>
+          <span class="hobby-name">Mathematics</span>
+          <span class="hobby-desc">My favourite thing to study in the entire universe.</span>
+        </div>
+        <div class="hobby-card">
+          <span class="hobby-icon">🕊</span>
+          <span class="hobby-name">Origami and Paper Crafts</span>
+          <span class="hobby-desc">"A world from a piece of paper" - Tadashi Tokieda</span>
+        </div>
+        <div class="hobby-card">
+          <span class="hobby-icon">♩</span>
+          <span class="hobby-name">Piano</span>
+          <span class="hobby-desc">My first love. All because I had the best piano teacher possible :)</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bugs -->
+    <section class="reveal">
+      <p class="section-label">Bugs are important!!</p>
+      <div class="bug-section">
+        <h2>#savethebugs</h2>
+        <p>
+          Insect populations have declined by over <em>40%</em> in recent decades — and most people don't even notice.
+          People tend to think that bugs are disgusting, and wish they didn't exist. To all those people: Please be careful what you wish for.
+          Bugs run the world. They pollinate, decompose, feed, and balance ecosystems that we depend on. 
+          <br/><br/>
+          I think about this a lot. I think you should too.
+        </p>
+      </div>
+    </section>
+
+    <!-- Faves -->
+    <!-- <section class="reveal">
+      <p class="section-label">currently into</p>
+      <div class="faves-grid">
+        <div class="fave-block">
+          <h3>music</h3>
+          <div class="fave-item"><span class="dot"></span> Mumford & Sons</div>
+          <div class="fave-item"><span class="dot"></span> The Cave</div>
+          <div class="fave-item"><span class="dot"></span> Little Lion Man</div>
+          <div class="fave-item"><span class="dot"></span> Sigh No More</div>
+        </div>
+        <div class="fave-block">
+          <h3>watching</h3>
+          <div class="fave-item"><span class="dot"></span> 3 Body Problem</div>
+          <div class="fave-item"><span class="dot"></span> The Devil Wears Prada</div>
+          <div class="fave-item"><span class="dot"></span> (not much else — too busy folding things)</div>
+        </div>
+      </div>
+    </section> -->
+
+    <!-- Footer -->
+    <footer class="reveal">
+      <span>cinnamon · made for fun</span>
+      <span>#savethebugs</span>
+    </footer>
+
+  </main>
+
+  <script>
+    // Custom cursor
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursorRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; cursor.style.left = mx + 'px'; cursor.style.top = my + 'px'; });
+    function animateRing() {
+      rx += (mx - rx) * 0.12;
+      ry += (my - ry) *.12;
+      ring.style.left = rx + 'px';
+      ring.style.top = ry + 'px';
+      requestAnimationFrame(animateRing);
+    }
+    animateRing();
+
+    // Scroll reveal
+    const reveals = document.querySelectorAll('.reveal');
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+    }, { threshold: 0.15 });
+    reveals.forEach(r => obs.observe(r));
+  </script>
+
+</body>
+</html>
