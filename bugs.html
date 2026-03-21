@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>cinnamon · bugs</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet" />
+    <style>
+    :root {
+        --purple: rgb(100, 40, 150);
+        --purple-light: rgb(140, 80, 200);
+        --purple-dark: rgb(60, 20, 100);
+        --purple-pale: rgb(200, 160, 240);
+        --bg: #0d0010;
+        --text: #f0e6ff;
+        --muted: rgba(200, 160, 240, 0.5);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: 'DM Mono', monospace;
+        font-weight: 300;
+        overflow-x: hidden;
+        cursor: none;
+    }
+    .cursor { width:12px; height:12px; background:var(--purple-light); border-radius:50%; position:fixed; pointer-events:none; z-index:9999; transform:translate(-50%,-50%); }
+    .cursor-ring { width:36px; height:36px; border:1px solid var(--purple-light); border-radius:50%; position:fixed; pointer-events:none; z-index:9998; transform:translate(-50%,-50%); transition:all .25s ease; opacity:.5; }
+    body::before {
+        content:''; position:fixed; inset:0;
+        background:
+            radial-gradient(ellipse at 20% 20%, rgba(100,40,150,.35) 0%, transparent 60%),
+            radial-gradient(ellipse at 80% 80%, rgba(60,20,100,.4) 0%, transparent 55%);
+        pointer-events:none; z-index:0;
+    }
+    .orb { position:fixed; border-radius:50%; filter:blur(80px); opacity:.18; pointer-events:none; z-index:0; animation:drift linear infinite; }
+    .orb1 { width:400px; height:400px; background:var(--purple); top:-100px; left:-100px; animation-duration:30s; }
+    .orb2 { width:300px; height:300px; background:var(--purple-light); bottom:-80px; right:-80px; animation-duration:22s; animation-direction:reverse; }
+    @keyframes drift {
+        0%,100% { transform:translate(0,0) scale(1); }
+        33% { transform:translate(30px,-20px) scale(1.05); }
+        66% { transform:translate(-20px,30px) scale(.95); }
+    }
+    main { position:relative; z-index:1; max-width:860px; margin:0 auto; padding:0 2rem; }
+    nav { padding: 2rem 0 0; }
+    nav a { font-size:0.7rem; letter-spacing:0.2em; color:var(--muted); text-decoration:none; text-transform:uppercase; transition:color .2s; }
+    nav a:hover { color:var(--purple-pale); }
+    .hero { min-height: 100vh; display:flex; flex-direction:column; justify-content:center; padding: 6rem 0 4rem; }
+    .hello { font-size:0.75rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--purple-pale); opacity:0; animation:fadeUp .8s ease .2s forwards; }
+    h1 {
+        font-family:'Fraunces', serif; font-size:clamp(4rem,12vw,9rem); font-weight:600; line-height:0.9; margin-top:0.5rem;
+        background:linear-gradient(135deg,#f0e6ff 30%,var(--purple-pale) 100%);
+        -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+        opacity:0; animation:fadeUp .9s ease .4s forwards;
+    }
+    .coming {
+        margin-top: 2.5rem;
+        font-size: 0.85rem;
+        color: var(--muted);
+        line-height: 2;
+        max-width: 420px;
+        opacity: 0;
+        animation: fadeUp .9s ease .7s forwards;
+    }
+    .coming em { color: var(--purple-pale); font-style: normal; }
+    footer { padding:3rem 0 4rem; border-top:1px solid rgba(200,160,240,.1); font-size:.7rem; color:var(--muted); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-top:4rem; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+    </style>
+</head>
+<body>
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-ring" id="cursorRing"></div>
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+
+    <main>
+    <nav><a href="index.html">← back</a></nav>
+    <div class="hero">
+        <span class="hello">a page about the small ones</span>
+        <h1>bugs.</h1>
+        <p class="coming">
+            pictures, fun facts, and reasons to care — <em>coming soon.</em><br/><br/>
+            in the meantime: go outside and look at something small.
+        </p>  
+    </div>
+    <footer>
+        <span>cinnamon · bugs</span>
+        <span>🐛 save the bugs</span>
+    </footer>
+    </main>
+
+    <script>
+        const cursor = document.getElementById('cursor');
+        const ring = document.getElementById('cursorRing');
+        let mx=0,my=0,rx=0,ry=0;
+        document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursor.style.left=mx+'px';cursor.style.top=my+'px';});
+        function animRing(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(animRing);}
+        animRing();
+    </script>
+</body>
+</html>
