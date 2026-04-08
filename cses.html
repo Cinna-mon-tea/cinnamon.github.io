@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>cinnamon · cses</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet" />
+    <style>
+    :root {
+        --purple: rgb(100, 40, 150);
+        --purple-light: rgb(140, 80, 200);
+        --purple-dark: rgb(60, 20, 100);
+        --purple-pale: rgb(200, 160, 240);
+        --bg: #0d0010;
+        --text: #f0e6ff;
+        --muted: rgba(200, 160, 240, 0.5);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: 'DM Mono', monospace;
+        font-weight: 300;
+        overflow-x: hidden;
+        cursor: none;
+    }
+    .cursor { width:12px; height:12px; background:var(--purple-light); border-radius:50%; position:fixed; pointer-events:none; z-index:9999; transform:translate(-50%,-50%); }
+    .cursor-ring { width:36px; height:36px; border:1px solid var(--purple-light); border-radius:50%; position:fixed; pointer-events:none; z-index:9998; transform:translate(-50%,-50%); transition:all .25s ease; opacity:.5; }
+    body::before {
+        content:''; position:fixed; inset:0;
+        background:
+            radial-gradient(ellipse at 20% 20%, rgba(100,40,150,.35) 0%, transparent 60%),
+            radial-gradient(ellipse at 80% 80%, rgba(60,20,100,.4) 0%, transparent 55%),
+            radial-gradient(ellipse at 60% 10%, rgba(140,80,200,.15) 0%, transparent 40%);
+        pointer-events:none; z-index:0;
+    }
+    .orb { position:fixed; border-radius:50%; filter:blur(80px); opacity:.18; pointer-events:none; z-index:0; animation:drift linear infinite; }
+    .orb1 { width:400px; height:400px; background:var(--purple); top:-100px; left:-100px; animation-duration:30s; }
+    .orb2 { width:300px; height:300px; background:var(--purple-light); bottom:-80px; right:-80px; animation-duration:22s; animation-direction:reverse; }
+    .orb3 { width:200px; height:200px; background:var(--purple-dark); top:40%; left:60%; animation-duration:18s; }
+    @keyframes drift {
+        0%,100% { transform:translate(0,0) scale(1); }
+        33% { transform:translate(30px,-20px) scale(1.05); }
+        66% { transform:translate(-20px,30px) scale(.95); }
+    }
+    main { position:relative; z-index:1; max-width:860px; margin:0 auto; padding:0 2rem; }
+    nav { padding: 2rem 0 0; }
+    nav a { font-size:0.7rem; letter-spacing:0.2em; color:var(--muted); text-decoration:none; text-transform:uppercase; transition:color .2s; }
+    nav a:hover { color:var(--purple-pale); }
+
+    .hero { padding: 5rem 0 3rem; }
+    .hello { font-size:0.75rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--purple-pale); opacity:0; animation:fadeUp .8s ease .2s forwards; }
+    h1 {
+        font-family:'Fraunces', serif; font-size:clamp(3rem,10vw,7rem); font-weight:600; line-height:0.9; margin-top:0.5rem;
+        background:linear-gradient(135deg,#f0e6ff 30%,var(--purple-pale) 100%);
+        -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+        opacity:0; animation:fadeUp .9s ease .4s forwards;
+    }
+    .subtitle {
+        margin-top: 1.5rem;
+        font-size: 0.8rem;
+        color: var(--muted);
+        line-height: 1.9;
+        opacity: 0;
+        animation: fadeUp .9s ease .7s forwards;
+    }
+
+    .section-label {
+        font-size: 0.65rem;
+        letter-spacing: 0.35em;
+        text-transform: uppercase;
+        color: var(--purple-light);
+        margin-bottom: 2rem;
+    }
+
+    section.problems { padding: 3rem 0 6rem; border-top: 1px solid rgba(200,160,240,0.1); }
+
+    .problem-list { display: flex; flex-direction: column; gap: 0; }
+
+    .problem-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.1rem 0;
+        border-bottom: 1px solid rgba(200,160,240,0.07);
+        text-decoration: none;
+        color: var(--text);
+        transition: all 0.2s ease;
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    .problem-row.visible { opacity: 1; transform: translateY(0); }
+    .problem-row:hover { padding-left: 0.6rem; }
+    .problem-row:hover .problem-name { color: var(--purple-pale); }
+    .problem-row:hover .arrow { opacity: 1; transform: translateX(0); }
+
+    .problem-left { display: flex; align-items: center; gap: 1.2rem; }
+    .problem-num { font-size: 0.65rem; color: var(--muted); width: 2rem; flex-shrink: 0; }
+    .problem-name { font-family: 'Fraunces', serif; font-size: 1.15rem; font-weight: 300; font-style: italic; transition: color 0.2s; }
+    .problem-tag { font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--purple-light); background: rgba(140,80,200,0.1); border: 1px solid rgba(140,80,200,0.2); border-radius: 2px; padding: 0.2rem 0.5rem; }
+
+    .problem-right { display: flex; align-items: center; gap: 1rem; }
+    .solved-dot { width: 6px; height: 6px; background: rgba(120,220,140,0.7); border-radius: 50%; flex-shrink: 0; }
+    .arrow { font-size: 0.75rem; color: var(--muted); opacity: 0; transform: translateX(-6px); transition: all 0.2s; }
+
+    footer { padding:3rem 0 4rem; border-top:1px solid rgba(200,160,240,.1); font-size:.7rem; color:var(--muted); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+    </style>
+</head>
+<body>
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-ring" id="cursorRing"></div>
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+
+    <main>
+        <nav><a href="index.html">← back</a></nav>
+
+        <div class="hero">
+            <h1>CSES grind</h1>
+            <p class="subtitle">trying to learn how to write code.</p>
+        </div>
+
+        <section class="problems">
+            <h2>Graph Problems</h2>
+            <p class="section-label">solved</p>
+            <div class="problem-list">
+                <a href="cses-counting-rooms.html" class="problem-row">
+                    <div class="problem-left">
+                        <span class="problem-num">01</span>
+                        <span class="problem-name">Counting Rooms</span>
+                        <span class="problem-tag">BFS / DFS</span>
+                    </div>
+                    <div class="problem-right">
+                        <span class="solved-dot"></span>
+                        <span class="arrow">→</span>
+                    </div>
+                </a>
+                <a href="cses-labyrinth.html" class="problem-row">
+                    <div class="problem-left">
+                        <span class="problem-num">02</span>
+                        <span class="problem-name">Labyrinth</span>
+                        <span class="problem-tag">BFS</span>
+                    </div>
+                    <div class="problem-right">
+                        <span class="solved-dot"></span>
+                        <span class="arrow">→</span>
+                    </div>
+                </a>
+                <a href="cses-building-roads.html" class="problem-row">
+                    <div class="problem-left">
+                        <span class="problem-num">03</span>
+                        <span class="problem-name">Building Roads</span>
+                        <span class="problem-tag">BFS / DFS</span>
+                    </div>
+                    <div class="problem-right">
+                        <span class="solved-dot"></span>
+                        <span class="arrow">→</span>
+                    </div>
+                </a>
+                <a href="cses-message-route.html" class="problem-row">
+                    <div class="problem-left">
+                        <span class="problem-num">04</span>
+                        <span class="problem-name">Message Route</span>
+                        <span class="problem-tag">BFS</span>
+                    </div>
+                    <div class="problem-right">
+                        <span class="solved-dot"></span>
+                        <span class="arrow">→</span>
+                    </div>
+                </a>
+                <a href="cses-building-teams.html" class="problem-row">
+                    <div class="problem-left">
+                        <span class="problem-num">05</span>
+                        <span class="problem-name">Building Teams</span>
+                        <span class="problem-tag">Bipartite</span>
+                    </div>
+                    <div class="problem-right">
+                        <span class="solved-dot"></span>
+                        <span class="arrow">→</span>
+                    </div>
+                </a>
+                <a href="cses-round-trip.html" class="problem-row">
+                    <div class="problem-left">
+                        <span class="problem-num">06</span>
+                        <span class="problem-name">Round Trip</span>
+                        <span class="problem-tag">DFS / Cycle</span>
+                    </div>
+                    <div class="problem-right">
+                        <span class="solved-dot"></span>
+                        <span class="arrow">→</span>
+                    </div>
+                </a>
+                <a href="cses-monsters.html" class="problem-row">
+                    <div class="problem-left">
+                        <span class="problem-num">07</span>
+                        <span class="problem-name">Monsters</span>
+                        <span class="problem-tag">Multi-source BFS</span>
+                    </div>
+                    <div class="problem-right">
+                        <span class="solved-dot"></span>
+                        <span class="arrow">→</span>
+                    </div>
+                </a>
+                <a href="cses-shortest-routes-i.html" class="problem-row">
+                    <div class="problem-left">
+                        <span class="problem-num">08</span>
+                        <span class="problem-name">Shortest Routes I</span>
+                        <span class="problem-tag">Dijkstra</span>
+                    </div>
+                    <div class="problem-right">
+                        <span class="solved-dot"></span>
+                        <span class="arrow">→</span>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <footer>
+            <span>cinnamon · cses grind</span>
+            <span>8 solved</span>
+        </footer>
+    </main>
+
+    <script>
+        const cursor = document.getElementById('cursor');
+        const ring = document.getElementById('cursorRing');
+        let mx=0,my=0,rx=0,ry=0;
+        document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursor.style.left=mx+'px';cursor.style.top=my+'px';});
+        function animRing(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(animRing);}
+        animRing();
+
+        const rows = document.querySelectorAll('.problem-row');
+        const obs = new IntersectionObserver(entries => {
+            entries.forEach((e, i) => {
+                if (e.isIntersecting) {
+                    setTimeout(() => e.target.classList.add('visible'), 60 * Array.from(rows).indexOf(e.target));
+                }
+            });
+        }, { threshold: 0.1 });
+        rows.forEach(r => obs.observe(r));
+    </script>
+</body>
+</html>
